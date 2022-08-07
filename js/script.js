@@ -48,39 +48,43 @@ const TaskBook=function(){
     this.addEditEvent=(elem)=>{
         let taskText=elem.querySelector('.task_text');
         taskText.addEventListener('click',()=>{
-            if(confirm('Желаете изменить текст задачи')){
-                this.Edit(elem);
-            };
+            if(!taskText.classList.contains('cross_out')){
+                if(confirm('Желаете изменить текст задачи')){
+                    this.Edit(elem);
+                };
+            }
+
            
         });
     }
+    this.Verification=(value)=>{
+        let regExp=/[\[\]\{\}\|\&]/g;
+        switch(true){
+            case(value.length===0 || value.length===''):
+                alert('Введена пустая строка.Повторите попытку.');
+                return false;
+            case(value.length<3):
+                alert('Длина текста не должна быть меньше 3 символов.Повторите попытку.');
+                return false;
+            case(value.length>50):
+                alert('Длина текста не должна быть больше 50 символов.Повторите попытку.');
+                return false;
+            case(regExp.test(value)):
+                alert('Используются недопустимые символы.Повторите попытку.');
+                return false;
+            default: return true;
+
+        }
+    }
     this.Edit=(li)=>{
-        
-            let taskText=li.querySelector('.task_text');
-            if(!taskText.classList.contains('cross_out')){
-               
-                    let newTask=prompt('Введите новую задачу:');
-                    switch(true){
-                        case(newTask.length===0 || newTask.length===''):
-                            alert('Введена пустая строка.Повторите попытку.');
-                            this.Edit(li);
-                        break;
-                        case(newTask.length<3):
-                            alert('Длина текста не должна быть меньше 3 символов.Повторите попытку.');
-                            this.Edit(li);
-                        break;
-                        case(newTask.length>50):
-                            alert('Длина текста не должна быть больше 50 символов.Повторите попытку.');
-                            this.Edit(li);
-                        break;
-                        default:
-                            taskText.innerHTML=newTask;
-                        break;
-                    }
-                
-            }
-        
-        
+            
+            let taskText=li.querySelector('.task_text');          
+            let newTask=prompt('Введите новую задачу:');
+            if(this.Verification(newTask)){
+                taskText.innerHTML=newTask;
+            }else{
+                 this.Edit(li);
+            }                         
     }
     this.Cross=function(li){
         let taskText=li.querySelector('.task_text');
@@ -101,12 +105,18 @@ window.addEventListener('load',function(){
     taskBook.Init('site');
     const addTask=document.querySelector('.create_task input');
     console.log(addTask);
+    let regExp=/[\[\]\{\}\|\&]/g;
     addTask.addEventListener('keyup',(event)=>{
        if(event.key==="Enter"){
-          taskBook.createTask(addTask.value);
-          addTask.value='';
-       }
-       
+                if(taskBook.Verification(addTask.value)){
+                    taskBook.createTask(addTask.value);
+                    addTask.value='';
+                }else{
+                    addTask.value='';
+                }
+                
+
+        }
     });
     let clear=this.document.querySelector('.clear_btn');
     clear.addEventListener('click',taskBook.ClearList);
